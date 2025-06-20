@@ -1,0 +1,10 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/dashboard/page": "/dashboard",
+  "/dashboard/detail/[id]/page": "/dashboard/detail/[id]",
+  "/dashboard/create/page": "/dashboard/create",
+  "/dashboard/stats/page": "/dashboard/stats",
+  "/dashboard/settings/page": "/dashboard/settings",
+  "/page": "/",
+  "/swagger/page": "/swagger"
+}

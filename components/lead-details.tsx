@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Phone, ArrowLeft, Mail, User, MessageCircle, Calendar, MapPin, Home, Building } from "lucide-react"
+import { Loader2, Phone, ArrowLeft, Mail, User, MessageCircle, Calendar, MapPin, Home, Building, FileText, Clock, AlertCircle } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import type { Metropole } from "@/types/metropole"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { mockDataManager, checkApiHealth } from "@/lib/mock-data"
+import { getMockLeadById } from "@/lib/mock-data"
 
 const LEAD_STATUS = [
   { value: "NOVO", label: "Novo", color: "bg-blue-500" },
@@ -29,9 +31,6 @@ export function LeadDetails({ leadId }: LeadDetailsProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [lead, setLead] = useState<Metropole | null>(null)
-  const [updatingStatus, setUpdatingStatus] = useState(false)
-  const tenantId = "4" // Casa Primavera
-  const product = "casaprimavera" // Casa Primavera
 
   useEffect(() => {
     fetchLead()
@@ -40,24 +39,28 @@ export function LeadDetails({ leadId }: LeadDetailsProps) {
   const fetchLead = async () => {
     setLoading(true)
     try {
-      // Buscar todos os leads e filtrar pelo ID (já que a API não tem endpoint individual)
-      const response = await fetch(`https://backend-ingressar.onrender.com/metropole/v1/data/${tenantId}/${product}`)
-      if (!response.ok) {
-        throw new Error("Falha ao buscar dados")
-      }
-      const data = await response.json()
-      const foundLead = data.find((l: Metropole) => l.id.toString() === leadId)
+      // Simular delay
+      await new Promise(resolve => setTimeout(resolve, 300))
       
-      if (!foundLead) {
-        throw new Error("Lead não encontrado")
-      }
+      // Buscar lead mockado
+      const mockLead = getMockLeadById(parseInt(leadId))
       
-      setLead(foundLead)
+      if (mockLead) {
+        setLead(mockLead)
+      } else {
+        toast({
+          title: "Lead não encontrado",
+          description: "O lead solicitado não foi encontrado",
+          variant: "destructive",
+        })
+        router.push("/dashboard")
+      }
+
     } catch (error) {
-      console.error("Erro ao buscar lead:", error)
+      console.error("Erro ao carregar lead:", error)
       toast({
         title: "Erro",
-        description: "Erro ao carregar os detalhes do lead",
+        description: "Erro ao carregar detalhes do lead",
         variant: "destructive",
       })
     } finally {
@@ -65,86 +68,11 @@ export function LeadDetails({ leadId }: LeadDetailsProps) {
     }
   }
 
-  const handleWhatsAppClick = () => {
-    if (!lead || !lead.cellPhone) return
-    
-    const formattedPhone = lead.cellPhone.replace(/\D/g, "")
-    const message = encodeURIComponent(
-      `Olá ${lead.name || ""}, estamos entrando em contato sobre seu interesse em nossos produtos.`
-    )
-    window.open(`https://wa.me/${formattedPhone}?text=${message}`, "_blank")
-  }
-
-  const handleEmailClick = () => {
-    if (!lead || !lead.email) return
-    
-    const subject = encodeURIComponent("Casa Primavera - Seus produtos de interesse")
-    const body = encodeURIComponent(`Olá ${lead.name || ""},\n\nEntramos em contato sobre seu interesse em nossos produtos.\n\nAtenciosamente,\nEquipe Casa Primavera`)
-    window.open(`mailto:${lead.email}?subject=${subject}&body=${body}`, "_blank")
-  }
-
-  const handleUpdateStatus = async (status: string) => {
-    if (!lead) return
-    
-    setUpdatingStatus(true)
-    try {
-      const response = await fetch(`https://backend-ingressar.onrender.com/metropole/v1/update/${lead.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          field03: status,
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error("Falha ao atualizar lead")
-      }
-
-      toast({
-        title: "Sucesso!",
-        description: `Status do lead atualizado para ${LEAD_STATUS.find(s => s.value === status)?.label}.`,
-      })
-
-      // Atualizar o lead local
-      setLead({ ...lead, field03: status })
-    } catch (error) {
-      console.error("Erro ao atualizar status do lead:", error)
-      toast({
-        title: "Erro",
-        description: "Ocorreu um erro ao atualizar o lead.",
-        variant: "destructive",
-      })
-    } finally {
-      setUpdatingStatus(false)
-    }
-  }
-
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString)
-      if (isNaN(date.getTime())) {
-        return "Data inválida"
-      }
-      return date.toLocaleString("pt-BR", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-      })
-    } catch (error) {
-      return "Data inválida"
-    }
-  }
-
   if (loading) {
     return (
-      <div className="w-full max-w-4xl mx-auto p-6">
-        <div className="flex justify-center items-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <span className="ml-2 text-gray-600">Carregando detalhes do lead...</span>
+      <div className="container mx-auto py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 className="h-8 w-8 animate-spin" />
         </div>
       </div>
     )
@@ -152,213 +80,188 @@ export function LeadDetails({ leadId }: LeadDetailsProps) {
 
   if (!lead) {
     return (
-      <div className="w-full max-w-4xl mx-auto p-6">
-        <Card>
-          <CardContent className="p-12 text-center">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Lead não encontrado</h2>
-            <p className="text-gray-600 mb-4">O lead solicitado não foi encontrado ou foi removido.</p>
-            <Button onClick={() => router.back()}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Voltar
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="container mx-auto py-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold">Lead não encontrado</h2>
+          <Button onClick={() => router.push("/dashboard")} className="mt-4">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Voltar ao Dashboard
+          </Button>
+        </div>
       </div>
     )
   }
 
-  const currentStatus = LEAD_STATUS.find(s => s.value === lead.field03) || LEAD_STATUS[0]
+  const status = LEAD_STATUS.find(s => s.value === lead.field03)
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-6 space-y-6">
+    <div className="container mx-auto py-8 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="outline" onClick={() => router.back()}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
+          <Button 
+            variant="outline" 
+            onClick={() => router.push("/dashboard")}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
             Voltar
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Detalhes do Lead</h1>
-            <p className="text-gray-600">ID: {lead.id}</p>
+            <h1 className="text-2xl font-bold">{lead.name}</h1>
+            <p className="text-muted-foreground">Lead #{lead.id}</p>
           </div>
         </div>
-        
-        <div className="flex items-center gap-3">
-          <Select
-            value={lead.field03 || "NOVO"}
-            onValueChange={handleUpdateStatus}
-            disabled={updatingStatus}
+        {status && (
+          <Badge 
+            className={`${status.color} text-white`}
+            variant={status.value === "NÃO_QUALIFICADO" ? "outline" : "default"}
           >
-            <SelectTrigger className="w-48">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {LEAD_STATUS.map((status) => (
-                <SelectItem key={status.value} value={status.value}>
-                  {status.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+            {status.label}
+          </Badge>
+        )}
       </div>
 
-      {/* Informações principais */}
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Informações pessoais */}
+        {/* Informações de Contato */}
         <Card>
-          <CardHeader className="bg-primary text-white">
+          <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <User className="h-5 w-5" />
-              Informações Pessoais
+              Informações de Contato
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6 space-y-4">
-            <div>
-              <label className="text-sm font-medium text-gray-600">Nome</label>
-              <p className="text-lg font-semibold text-gray-900">{lead.name || "Não informado"}</p>
+          <CardContent className="space-y-4">
+            <div className="flex items-center gap-3">
+              <Mail className="h-4 w-4 text-muted-foreground" />
+              <span>{lead.email}</span>
             </div>
-            
-            <div className="grid grid-cols-1 gap-4">
-              <div>
-                <label className="text-sm font-medium text-gray-600">E-mail</label>
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-gray-400" />
-                  <span className="text-gray-900">{lead.email || "Não informado"}</span>
-                </div>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium text-gray-600">Telefone</label>
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-gray-400" />
-                  <span className="text-gray-900">{lead.cellPhone || "Não informado"}</span>
-                </div>
-              </div>
+            <div className="flex items-center gap-3">
+              <Phone className="h-4 w-4 text-muted-foreground" />
+              <span>{lead.cellPhone}</span>
             </div>
-
-            <div className="flex gap-2 pt-4">
-              <Button
-                onClick={handleWhatsAppClick}
-                disabled={!lead.cellPhone}
-                className="flex-1"
-              >
-                <MessageCircle className="h-4 w-4 mr-2" />
-                WhatsApp
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleEmailClick}
-                disabled={!lead.email}
-                className="flex-1"
-              >
-                <Mail className="h-4 w-4 mr-2" />
-                E-mail
-              </Button>
+            <div className="flex items-center gap-3">
+              <MapPin className="h-4 w-4 text-muted-foreground" />
+              <span>{lead.field01}</span>
             </div>
           </CardContent>
         </Card>
 
-        {/* Status e Datas */}
+        {/* Interesse e Produto */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Tag className="h-5 w-5" />
+              Interesse Principal
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <p className="font-medium">{lead.interessePrincipal}</p>
+              <p className="text-sm text-muted-foreground mt-1">Produto: {lead.product}</p>
+            </div>
+            {lead.field02 && (
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Observações:</p>
+                <p className="text-sm">{lead.field02}</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Informações Adicionais */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Informações Adicionais
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {lead.field04 && (
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Orçamento:</span>
+                <span className="text-sm font-medium">{lead.field04}</span>
+              </div>
+            )}
+            {lead.field05 && (
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Urgência:</span>
+                <span className="text-sm font-medium">{lead.field05}</span>
+              </div>
+            )}
+            {lead.field06 && (
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Prazo:</span>
+                <span className="text-sm font-medium">{lead.field06}</span>
+              </div>
+            )}
+            {lead.field07 && (
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Tipo:</span>
+                <span className="text-sm font-medium">{lead.field07}</span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Timeline */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5" />
-              Status e Timeline
+              Timeline
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6 space-y-4">
-            <div>
-              <label className="text-sm font-medium text-gray-600">Status Atual</label>
-              <div className="mt-1">
-                <Badge variant="secondary" className="px-3 py-1 text-sm">
-                  {currentStatus.label}
-                </Badge>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Criado em:</span>
+                <span>{new Date(lead.createdAt).toLocaleDateString("pt-BR")}</span>
               </div>
-            </div>
-            
-            <div>
-              <label className="text-sm font-medium text-gray-600">Data de Criação</label>
-              <p className="text-gray-900">{formatDate(lead.createdAt)}</p>
-            </div>
-            
-            <div>
-              <label className="text-sm font-medium text-gray-600">Última Atualização</label>
-              <p className="text-gray-900">{formatDate(lead.updatedAt)}</p>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-gray-600">Produto</label>
-              <div className="flex items-center gap-2 mt-1">
-                <Building className="h-4 w-4 text-gray-400" />
-                <span className="text-gray-900">Casa Primavera</span>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Última atualização:</span>
+                <span>{new Date(lead.updatedAt).toLocaleDateString("pt-BR")}</span>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Informações do projeto */}
+      {/* Ações */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Home className="h-5 w-5" />
-            Informações do Projeto
+            <MessageCircle className="h-5 w-5" />
+            Ações Rápidas
           </CardTitle>
-          <CardDescription>
-            Detalhes sobre o interesse e projeto do cliente
-          </CardDescription>
         </CardHeader>
-        <CardContent className="p-6 space-y-4">
-          <div className="grid gap-4 md:grid-cols-1">
-            <div>
-              <label className="text-sm font-medium text-gray-600">Interesse Principal</label>
-              <p className="text-gray-900 mt-1">{lead.interessePrincipal || "Não especificado"}</p>
-            </div>
-          </div>
-          
-          <div>
-            <label className="text-sm font-medium text-gray-600">Descrição do Projeto</label>
-            <div className="mt-1 p-3 bg-gray-50 rounded-lg">
-              <p className="text-gray-900">
-                {lead.field02 || "Nenhuma descrição fornecida"}
-              </p>
-            </div>
+        <CardContent>
+          <div className="flex gap-2 flex-wrap">
+            <Button 
+              variant="outline"
+              onClick={() => window.open(`tel:${lead.cellPhone}`, '_self')}
+            >
+              <Phone className="mr-2 h-4 w-4" />
+              Ligar
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => window.open(`mailto:${lead.email}`, '_blank')}
+            >
+              <Mail className="mr-2 h-4 w-4" />
+              Email
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => window.open(`https://wa.me/${lead.cellPhone.replace(/\D/g, '')}`, '_blank')}
+            >
+              <MessageCircle className="mr-2 h-4 w-4" />
+              WhatsApp
+            </Button>
           </div>
         </CardContent>
       </Card>
-
-      {/* Campos adicionais (se houver dados) */}
-      {(lead.field04 || lead.field05 || lead.field06) && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Informações Adicionais</CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="grid gap-4 md:grid-cols-3">
-              {lead.field04 && (
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Campo 4</label>
-                  <p className="text-gray-900 mt-1">{lead.field04}</p>
-                </div>
-              )}
-              {lead.field05 && (
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Campo 5</label>
-                  <p className="text-gray-900 mt-1">{lead.field05}</p>
-                </div>
-              )}
-              {lead.field06 && (
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Campo 6</label>
-                  <p className="text-gray-900 mt-1">{lead.field06}</p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   )
 }

@@ -19,7 +19,11 @@ export default function DashboardPage() {
     <DashboardShell>
       <DashboardHeader heading="Casa Primavera" text="Gerencie seus leads de moda e confecção de forma eficiente." />
       <div className="grid gap-6">
-        <DashboardStats key={`stats-${refreshKey}`} refreshTrigger={refreshKey} />
+        <DashboardStats 
+          key={`stats-${refreshKey}`} 
+          product={selectedProduct}
+          refreshTrigger={refreshKey} 
+        />
         <MetropoleList
           key={`list-${refreshKey}`}
           onProductChange={setSelectedProduct}

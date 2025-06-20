@@ -6,17 +6,19 @@ import { Badge } from "@/components/ui/badge"
 import { Users, TrendingUp, Target, CheckCircle, Clock, Phone, Calendar, MapPin, Home } from "lucide-react"
 import type { Metropole } from "@/types/metropole"
 import { useProductConfig } from "@/hooks/use-product-config"
+import { getMockLeads } from "@/lib/mock-data"
+import { toast } from "@/components/ui/use-toast"
 
 interface DashboardStatsProps {
+  product: string
   refreshTrigger?: number
 }
 
-export function DashboardStats({ refreshTrigger }: DashboardStatsProps) {
+export function DashboardStats({ product, refreshTrigger }: DashboardStatsProps) {
   const [loading, setLoading] = useState(true)
   const [leads, setLeads] = useState<Metropole[]>([])
   const { products } = useProductConfig()
-  const tenantId = "4" // Casa Primavera
-  const product = "casaprimavera" // Casa Primavera
+  const tenantId = "9" // Casa Primavera
 
   useEffect(() => {
     fetchStats()
@@ -25,14 +27,22 @@ export function DashboardStats({ refreshTrigger }: DashboardStatsProps) {
   const fetchStats = async () => {
     setLoading(true)
     try {
-      const response = await fetch(`https://backend-ingressar.onrender.com/metropole/v1/data/${tenantId}/${product}`)
-      if (!response.ok) {
-        throw new Error("Falha ao buscar dados")
-      }
-      const data = await response.json()
-      setLeads(data)
+      console.log("📊 Carregando estatísticas...")
+      
+      // Simular delay
+      await new Promise(resolve => setTimeout(resolve, 300))
+      
+      const mockData = getMockLeads()
+      console.log(`📈 Stats: ${mockData.length} leads para estatísticas`)
+      setLeads(mockData)
+
     } catch (error) {
       console.error("Erro ao buscar estatísticas:", error)
+      toast({
+        title: "Erro",
+        description: "Erro ao carregar estatísticas",
+        variant: "destructive",
+      })
     } finally {
       setLoading(false)
     }

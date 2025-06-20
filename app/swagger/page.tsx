@@ -31,7 +31,7 @@ export default function SwaggerPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="bg-green-50 text-green-700">GET</Badge>
-                    <code className="text-sm">/data/4/casaprimavera</code>
+                    <code className="text-sm">/data/9/casaprimavera</code>
                   </div>
                   <p className="text-sm text-gray-600 mt-1">Listar todos os leads do Casa Primavera</p>
                 </div>
@@ -72,7 +72,7 @@ export default function SwaggerPage() {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Tenant ID:</span>
-                  <Badge variant="secondary">4</Badge>
+                  <Badge variant="secondary">9</Badge>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Product:</span>

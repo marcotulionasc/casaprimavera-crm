@@ -1,7 +1,7 @@
 {
   "version": 4,
   "routes": {
-    "/dashboard/settings": {
+    "/dashboard": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -14,32 +14,8 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/dashboard/settings",
-      "dataRoute": "/dashboard/settings.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
-    "/dashboard/create": {
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "Next-Action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": false,
-      "srcRoute": "/dashboard/create",
-      "dataRoute": "/dashboard/create.rsc",
+      "srcRoute": "/dashboard",
+      "dataRoute": "/dashboard.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -73,7 +49,7 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/dashboard": {
+    "/dashboard/create": {
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -86,8 +62,32 @@
         }
       ],
       "initialRevalidateSeconds": false,
-      "srcRoute": "/dashboard",
-      "dataRoute": "/dashboard.rsc",
+      "srcRoute": "/dashboard/create",
+      "dataRoute": "/dashboard/create.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
+    "/dashboard/settings": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "Next-Action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/dashboard/settings",
+      "dataRoute": "/dashboard/settings.rsc",
       "allowHeader": [
         "host",
         "x-matched-path",
@@ -149,8 +149,8 @@
   "dynamicRoutes": {},
   "notFoundRoutes": [],
   "preview": {
-    "previewModeId": "cd44211130d22acd9f67b2f8e2241150",
-    "previewModeSigningKey": "8c19e011df6a30adbba7866e18652339872e00dbd363c4e74b150497aaa079a2",
-    "previewModeEncryptionKey": "d110dfee602bdc00cab1fac3db8e43c52e701495f2411a20d8cb466a9e30f8f0"
+    "previewModeId": "5270eeb5ff37a5b3e7cdfa5166e2b423",
+    "previewModeSigningKey": "790bee2486b8421275162166882639650356f4e76a5671bd013125f6b607eb67",
+    "previewModeEncryptionKey": "50596ac46d74af4c3ac66043d35d9d0e6c5c95f9a0142822edf880e1b85e7e8f"
   }
 }

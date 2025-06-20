@@ -20,6 +20,8 @@ import {
 } from "recharts"
 import { Loader2, Building } from "lucide-react"
 import type { Metropole } from "@/types/metropole"
+import { mockDataManager, checkApiHealth } from "@/lib/mock-data"
+import { toast } from "@/components/ui/use-toast"
 
 // Constante com os status oficiais
 const LEAD_STATUS = [
@@ -35,12 +37,38 @@ const LEAD_STATUS = [
 // Cores da LEVA MIDIA
 const COLORS = ["#2E0854", "#CAFF00", "#4B0082", "#9FCC00", "#1A0330", "#E5FF66"]
 
+const STATUS_COLORS: Record<string, string> = {
+  NOVO: "#3B82F6",
+  CONTATO_FEITO: "#EAB308", 
+  QUALIFICADO: "#22C55E",
+  "NÃO_QUALIFICADO": "#EF4444",
+  QUALIFICADO_OP: "#8B5CF6",
+  PROPOSTA: "#F97316",
+  FECHADO: "#10B981"
+}
+
+const RADIAN = Math.PI / 180
+const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5
+  const x = cx + radius * Math.cos(-midAngle * RADIAN)
+  const y = cy + radius * Math.sin(-midAngle * RADIAN)
+
+  if (percent < 0.05) return null // Não mostrar labels muito pequenos
+
+  return (
+    <text x={x} y={y} fill="white" textAnchor={x > cx ? "start" : "end"} dominantBaseline="central" fontSize={12}>
+      {`${(percent * 100).toFixed(0)}%`}
+    </text>
+  )
+}
+
 export function LeadStats() {
   const [loading, setLoading] = useState(true)
   const [leads, setLeads] = useState<Metropole[]>([])
   const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1200)
-  const tenantId = "4" // Casa Primavera
+  const tenantId = "9" // Casa Primavera
   const product = "casaprimavera" // Casa Primavera
+  const [isUsingMock, setIsUsingMock] = useState(false)
 
   useEffect(() => {
     const handleResize = () => {
@@ -54,13 +82,53 @@ export function LeadStats() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Buscar leads do Casa Primavera
-        const response = await fetch(`https://backend-ingressar.onrender.com/metropole/v1/data/${tenantId}/${product}`)
-        const casaprimaveraData = response.ok ? await response.json() : []
+        // Verificar se a API está funcionando
+        const apiIsHealthy = await checkApiHealth(tenantId, product)
         
-        setLeads(casaprimaveraData)
+        if (!apiIsHealthy) {
+          // Usar dados mockados
+          console.log("🎭 API não disponível, usando dados mockados para gráficos")
+          mockDataManager.enableMock()
+          setIsUsingMock(true)
+          
+          const mockData = await mockDataManager.fetchLeads(tenantId, product)
+          setLeads(mockData)
+          
+          toast({
+            title: "Modo Demo - Gráficos",
+            description: "Exibindo estatísticas com dados de demonstração",
+            variant: "default",
+          })
+        } else {
+          // Usar API real
+          setIsUsingMock(false)
+          const response = await fetch(`https://backend-ingressar.onrender.com/metropole/v1/data/${tenantId}/${product}`)
+          const casaprimaveraData = response.ok ? await response.json() : []
+          
+          setLeads(casaprimaveraData)
+        }
       } catch (error) {
         console.error("Erro ao buscar dados:", error)
+        
+        // Fallback para dados mockados
+        try {
+          console.log("🎭 Erro na API, usando dados mockados como fallback para gráficos")
+          mockDataManager.enableMock()
+          setIsUsingMock(true)
+          
+          const mockData = await mockDataManager.fetchLeads(tenantId, product)
+          setLeads(mockData)
+          
+          if (!isUsingMock) { // Só mostrar toast se não estava usando mock
+            toast({
+              title: "Modo Demo - Gráficos",
+              description: "Erro na API, usando dados de demonstração",
+              variant: "default",
+            })
+          }
+        } catch (mockError) {
+          console.error("Erro mesmo com dados mockados:", mockError)
+        }
       } finally {
         setLoading(false)
       }
@@ -88,8 +156,6 @@ export function LeadStats() {
 
     return Object.entries(interestCounts).map(([name, value]) => ({ name, value }))
   }
-
-
 
   const getLeadsByDate = () => {
     const dateMap: Record<string, number> = {}
@@ -387,9 +453,7 @@ export function LeadStats() {
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ name, percent }: any) =>
-                          windowWidth >= 640 ? `${name}: ${(percent * 100).toFixed(0)}%` : `${(percent * 100).toFixed(0)}%`
-                        }
+                        label={renderCustomizedLabel}
                         outerRadius={windowWidth < 640 ? 60 : 80}
                         fill="#8884d8"
                         dataKey="value"
@@ -447,8 +511,6 @@ export function LeadStats() {
             </CardContent>
           </Card>
         </TabsContent>
-
-
       </Tabs>
     </div>
   )

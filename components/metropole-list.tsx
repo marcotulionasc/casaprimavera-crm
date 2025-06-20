@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 import type { Metropole } from "@/types/metropole"
 import { useProductConfig } from "@/hooks/use-product-config"
+import { getMockLeads, USE_MOCK } from "@/lib/mock-data"
 
 const LEAD_STATUS = [
   { value: "NOVO", label: "Novo", color: "bg-blue-500" },
@@ -26,14 +27,15 @@ const LEAD_STATUS = [
 interface MetropoleListProps {
   onProductChange?: (product: string) => void
   onStatusUpdate?: () => void
+  refreshTrigger?: number
 }
 
-export function MetropoleList({ onProductChange, onStatusUpdate }: MetropoleListProps) {
+export function MetropoleList({ onProductChange, onStatusUpdate, refreshTrigger }: MetropoleListProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [metropoles, setMetropoles] = useState<Metropole[]>([])
   const [updatingId, setUpdatingId] = useState<number | null>(null)
-  const tenantId = "4"
+  const tenantId = "9"
   const [product, setProduct] = useState<string>("casaprimavera")
   const [searchTerm, setSearchTerm] = useState("")
   const { products } = useProductConfig()
@@ -48,28 +50,34 @@ export function MetropoleList({ onProductChange, onStatusUpdate }: MetropoleList
     if (onProductChange) {
       onProductChange(product)
     }
-  }, [product])
+  }, [product, refreshTrigger])
 
   const fetchMetropoles = async () => {
     setLoading(true)
     try {
-      const response = await fetch(`https://backend-ingressar.onrender.com/metropole/v1/data/${tenantId}/${product}`)
-      if (!response.ok) {
-        throw new Error("Falha ao buscar dados")
-      }
-      const data = await response.json()
+      console.log("📊 Carregando dados mock simples...")
       
-      // Ordenar os leads do mais recente para o mais antigo
-      const sortedData = data.sort((a: Metropole, b: Metropole) => {
-        const dateA = new Date(a.createdAt).getTime()
-        const dateB = new Date(b.createdAt).getTime()
-        return dateB - dateA // Ordem decrescente (mais recente primeiro)
+      // Simular um pequeno delay
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      // Usar dados mockados simples
+      const mockData = getMockLeads()
+      console.log(`✅ ${mockData.length} leads carregados`)
+      
+      setMetropoles(mockData)
+      
+      toast({
+        title: "Dados Carregados",
+        description: `${mockData.length} leads encontrados`,
       })
       
-      setMetropoles(sortedData)
-      // A paginação será definida no useEffect dos filtros
     } catch (error) {
-      console.error("Erro ao buscar dados:", error)
+      console.error("Erro:", error)
+      toast({
+        title: "Erro",
+        description: "Erro ao carregar dados",
+        variant: "destructive",
+      })
     } finally {
       setLoading(false)
     }
@@ -83,40 +91,34 @@ export function MetropoleList({ onProductChange, onStatusUpdate }: MetropoleList
     window.open(`https://wa.me/${formattedPhone}?text=${message}`, "_blank")
   }
 
-  const handleUpdateStatus = async (id: number, status: string) => {
+  const handleStatusUpdate = async (id: number, newStatus: string) => {
     setUpdatingId(id)
     try {
-      const response = await fetch(`https://backend-ingressar.onrender.com/metropole/v1/update/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          field03: status,
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error("Falha ao atualizar lead")
-      }
+      // Simular delay de API
+      await new Promise(resolve => setTimeout(resolve, 300))
+      
+      // Atualizar na lista local
+      setMetropoles(prev => 
+        prev.map(lead => 
+          lead.id === id 
+            ? { ...lead, field03: newStatus, updatedAt: new Date().toISOString() }
+            : lead
+        )
+      )
 
       toast({
-        title: "Sucesso!",
-        description: `Status do lead atualizado para ${status}.`,
+        title: "Sucesso",
+        description: "Status atualizado com sucesso",
       })
 
-      // Atualizar o lead na lista local
-      setMetropoles(metropoles.map((lead) => (lead.id === id ? { ...lead, field03: status } : lead)))
-
-      // Notificar o componente pai para atualizar as estatísticas
       if (onStatusUpdate) {
         onStatusUpdate()
       }
     } catch (error) {
-      console.error("Erro ao atualizar status do lead:", error)
+      console.error("Erro ao atualizar status:", error)
       toast({
-        title: "Erro",
-        description: "Ocorreu um erro ao atualizar o lead.",
+        title: "Erro", 
+        description: "Erro ao atualizar status",
         variant: "destructive",
       })
     } finally {
@@ -363,7 +365,7 @@ export function MetropoleList({ onProductChange, onStatusUpdate }: MetropoleList
                             <TableCell>
                               <Select
                                 value={lead.field03 || "NOVO"}
-                                onValueChange={(value) => handleUpdateStatus(lead.id, value)}
+                                onValueChange={(value) => handleStatusUpdate(lead.id, value)}
                                 disabled={updatingId === lead.id}
                               >
                                 <SelectTrigger className="w-32 h-8 text-xs">
@@ -453,7 +455,7 @@ export function MetropoleList({ onProductChange, onStatusUpdate }: MetropoleList
                               <div className="flex-1">
                                 <Select
                                   value={lead.field03 || "NOVO"}
-                                  onValueChange={(value) => handleUpdateStatus(lead.id, value)}
+                                  onValueChange={(value) => handleStatusUpdate(lead.id, value)}
                                   disabled={updatingId === lead.id}
                                 >
                                   <SelectTrigger className="h-8 text-xs">

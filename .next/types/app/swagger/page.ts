@@ -1,4 +1,4 @@
-// File: /Users/mac/Desktop/projects/dashboards/fabrica-king/app/swagger/page.tsx
+// File: /Users/mac/Desktop/projects/dashboards/casaprimavera-crm/app/swagger/page.tsx
 import * as entry from '../../../../app/swagger/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

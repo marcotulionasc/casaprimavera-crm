@@ -1,4 +1,4 @@
-// File: /Users/mac/Desktop/projects/dashboards/fabrica-king/app/dashboard/settings/page.tsx
+// File: /Users/mac/Desktop/projects/dashboards/casaprimavera-crm/app/dashboard/settings/page.tsx
 import * as entry from '../../../../../app/dashboard/settings/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

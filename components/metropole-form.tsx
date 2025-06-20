@@ -13,12 +13,14 @@ import { Loader2 } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 import { useProductConfig } from "@/hooks/use-product-config"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { mockDataManager, checkApiHealth } from "@/lib/mock-data"
 
 export function MetropoleForm() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const { products } = useProductConfig()
   const [formType, setFormType] = useState<"premium" | "quiz">("premium")
+  const [isUsingMock, setIsUsingMock] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -34,7 +36,7 @@ export function MetropoleForm() {
     field07: "", // Premium: interessePrincipal (morar/investir)
     field08: "", // Não usado
     field09: "", // Não usado
-    tenantId: 2, // Valor hardcoded conforme solicitado
+    tenantId: 9, // Valor hardcoded conforme solicitado
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -99,39 +101,85 @@ export function MetropoleForm() {
     setLoading(true)
 
     try {
-      const payload = {
-        ...formData,
-        tenantId: {
-          id: formData.tenantId,
-        },
+      // Verificar se a API está funcionando
+      const apiIsHealthy = await checkApiHealth("9", "casaprimavera")
+      
+      if (!apiIsHealthy) {
+        // Usar dados mockados
+        console.log("🎭 API não disponível, criando lead nos dados mockados")
+        mockDataManager.enableMock()
+        setIsUsingMock(true)
+        
+        await mockDataManager.createLead({
+          ...formData,
+          field03: "NOVO", // Status inicial
+          tenantId: { id: formData.tenantId }
+        })
+        
+        toast({
+          title: "Sucesso! (Demo)",
+          description: "Lead cadastrado com sucesso nos dados de demonstração.",
+        })
+      } else {
+        // Usar API real
+        setIsUsingMock(false)
+        const payload = {
+          ...formData,
+          tenantId: {
+            id: formData.tenantId,
+          },
+        }
+
+        const response = await fetch("https://backend-ingressar.onrender.com/metropole/v1/send", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        })
+
+        if (!response.ok) {
+          throw new Error("Falha ao enviar dados")
+        }
+
+        toast({
+          title: "Sucesso!",
+          description: "Lead cadastrado com sucesso.",
+        })
       }
-
-      const response = await fetch("https://backend-ingressar.onrender.com/metropole/v1/send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      })
-
-      if (!response.ok) {
-        throw new Error("Falha ao enviar dados")
-      }
-
-      toast({
-        title: "Sucesso!",
-        description: "Lead cadastrado com sucesso.",
-      })
 
       router.push("/dashboard")
       router.refresh()
     } catch (error) {
       console.error("Erro ao enviar dados:", error)
-      toast({
-        title: "Erro",
-        description: "Ocorreu um erro ao cadastrar o lead.",
-        variant: "destructive",
-      })
+      
+      // Fallback para dados mockados
+      try {
+        console.log("🎭 Erro na API, criando lead nos dados mockados como fallback")
+        mockDataManager.enableMock()
+        setIsUsingMock(true)
+        
+        await mockDataManager.createLead({
+          ...formData,
+          field03: "NOVO", // Status inicial
+          tenantId: { id: formData.tenantId }
+        })
+        
+        toast({
+          title: "Sucesso! (Demo)",
+          description: "Lead cadastrado nos dados de demonstração devido a erro na API.",
+        })
+        
+        router.push("/dashboard")
+        router.refresh()
+      } catch (mockError) {
+        console.error("Erro mesmo com dados mockados:", mockError)
+        toast({
+          title: "Erro",
+          description: "Ocorreu um erro ao cadastrar o lead.",
+          variant: "destructive",
+        })
+      }
     } finally {
       setLoading(false)
     }

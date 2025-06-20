@@ -96,7 +96,7 @@
         "transform": "lodash/{{member}}"
       }
     },
-    "outputFileTracingRoot": "/Users/mac/Desktop/projects/dashboards/fabrica-king",
+    "outputFileTracingRoot": "/Users/mac/Desktop/projects/dashboards/casaprimavera-crm",
     "experimental": {
       "allowedDevOrigins": [],
       "nodeMiddleware": false,
@@ -175,7 +175,7 @@
       "forceSwcTransforms": false,
       "largePageDataBytes": 128000,
       "turbo": {
-        "root": "/Users/mac/Desktop/projects/dashboards/fabrica-king"
+        "root": "/Users/mac/Desktop/projects/dashboards/casaprimavera-crm"
       },
       "typedRoutes": false,
       "typedEnv": false,
@@ -281,7 +281,7 @@
     "bundlePagesRouterDependencies": false,
     "configFileName": "next.config.mjs"
   },
-  "appDir": "/Users/mac/Desktop/projects/dashboards/fabrica-king",
+  "appDir": "/Users/mac/Desktop/projects/dashboards/casaprimavera-crm",
   "relativeAppDir": "",
   "files": [
     ".next/routes-manifest.json",

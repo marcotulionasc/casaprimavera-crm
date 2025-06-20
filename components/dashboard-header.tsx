@@ -1,4 +1,7 @@
-import type React from "react"
+"use client"
+
+import { useState, useEffect } from "react"
+import { Badge } from "@/components/ui/badge"
 
 interface DashboardHeaderProps {
   heading: string
@@ -7,13 +10,22 @@ interface DashboardHeaderProps {
 }
 
 export function DashboardHeader({ heading, text, children }: DashboardHeaderProps) {
+  const [isMockMode] = useState(true) // Sempre true agora com mock simples
+
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-1 w-full overflow-hidden">
-      <div className="grid gap-1 min-w-0">
-        <h1 className="font-bold text-2xl md:text-3xl text-gray-900 truncate">{heading}</h1>
-        {text && <p className="text-base text-gray-600 truncate">{text}</p>}
+    <div className="flex items-center justify-between px-2">
+      <div className="grid gap-1">
+        <div className="flex items-center gap-2">
+          <h1 className="font-heading text-3xl md:text-4xl">{heading}</h1>
+          {isMockMode && (
+            <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-300">
+              🎭 Modo Demo
+            </Badge>
+          )}
+        </div>
+        {text && <p className="text-lg text-muted-foreground">{text}</p>}
       </div>
-      {children && <div className="flex-shrink-0">{children}</div>}
+      {children}
     </div>
   )
 }

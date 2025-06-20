@@ -34,7 +34,7 @@ Sistema de gestão de leads especializado para moda e confecção.
 ### Variáveis de Ambiente
 
 ```env
-TENANT_ID=4
+TENANT_ID=9
 API_BASE_URL=https://backend-ingressar.onrender.com/metropole/v1
 PRODUCT_ID=casaprimavera
 ```
@@ -46,13 +46,13 @@ PRODUCT_ID=casaprimavera
 git clone <repository-url>
 
 # Instale as dependências
-npm install
+npm install or yarn install
 
 # Execute em desenvolvimento
-npm run dev
+npm run dev or yarn dev
 
 # Build para produção
-npm run build
+npm run build or yarn build
 ```
 
 ## 📱 Funcionalidades
@@ -93,7 +93,7 @@ npm run build
 
 **Listar Leads**
 ```
-GET /metropole/v1/data/4/casaprimavera
+GET /metropole/v1/data/9/casaprimavera
 ```
 
 **Atualizar Status**
@@ -124,7 +124,7 @@ interface casaprimaveraLead {
 
 Este sistema utiliza a mesma estrutura visual do CRM da LEVA MIDIA, adaptado especificamente para:
 
-- **Dados do Casa Primavera**: Tenant ID 4, produto 'casaprimavera'
+- **Dados do Casa Primavera**: Tenant ID 9, produto 'casaprimavera'
 - **Cores da marca**: Esquema marrom/amarelo da LEVA MIDIA
 - **Terminologia**: Focada em moda e confecção
 - **Campos específicos**: Localização e interesses genéricos

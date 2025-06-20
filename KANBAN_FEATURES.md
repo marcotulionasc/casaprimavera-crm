@@ -99,4 +99,27 @@ Se o drag and drop não funcionar:
 
 ---
 
-**Desenvolvido para Casa Primavera CRM** 🏠✨ 
+**Desenvolvido para Casa Primavera - Móveis e Decoração** 🏠✨
+
+## 📝 Atualização de Dados
+
+Os dados foram atualizados para refletir o negócio real da Casa Primavera:
+
+### 🏠 Categorias de Interesse
+- **Decoração de sala** - Móveis e acessórios para sala de estar
+- **Móveis de escritório** - Soluções corporativas e home office
+- **Quarto de casal** - Móveis planejados para quarto principal
+- **Quarto infantil** - Decoração temática para crianças
+- **Cozinha planejada** - Móveis sob medida para cozinha
+- **Banheiro planejado** - Soluções modernas para banheiro
+- **Área externa** - Móveis para varanda e jardim
+- **Móveis sob medida** - Projetos personalizados
+- **Home office** - Escritório em casa
+- **Decoração completa** - Reforma total da casa
+- **Closet planejado** - Organização de roupas
+- **Lavanderia** - Móveis para área de serviço
+
+### 💰 Orçamentos Realistas
+- Faixas de orçamento de R$ 5.000 a R$ 50.000
+- Baseados em projetos reais de móveis e decoração
+- Diferentes categorias de investimento 

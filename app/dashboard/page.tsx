@@ -17,7 +17,7 @@ export default function DashboardPage() {
 
   return (
     <DashboardShell>
-      <DashboardHeader heading="Casa Primavera" text="Gerencie seus leads de moda e confecção de forma eficiente." />
+      <DashboardHeader heading="Casa Primavera" text="Gerencie seus leads de decoração e móveis para casa de forma eficiente." />
       <div className="grid gap-6">
         <DashboardStats 
           key={`stats-${refreshKey}`} 

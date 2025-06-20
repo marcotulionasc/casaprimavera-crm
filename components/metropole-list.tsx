@@ -240,7 +240,7 @@ export function MetropoleList({ onProductChange, onStatusUpdate, refreshTrigger 
                 Leads Casa Primavera
               </CardTitle>
               <CardDescription className="text-gray-600 text-sm sm:text-base">
-                Gerencie seus leads de moda e confecção de forma eficiente. Ordenado por mais recentes.
+                Gerencie seus leads de decoração e móveis para casa de forma eficiente. Ordenado por mais recentes.
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">

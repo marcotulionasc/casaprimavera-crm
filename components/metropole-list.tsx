@@ -7,12 +7,13 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Phone, Eye, ChevronLeft, ChevronRight, Search, Filter, Plus, HelpCircle, Calendar, MapPin, Home } from "lucide-react"
+import { Loader2, Phone, Eye, ChevronLeft, ChevronRight, Search, Filter, Plus, HelpCircle, Calendar, MapPin, Home, Grid3X3, TableIcon } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 import type { Metropole } from "@/types/metropole"
 import { useProductConfig } from "@/hooks/use-product-config"
 import { getMockLeads, USE_MOCK } from "@/lib/mock-data"
+import { KanbanBoard } from "@/components/kanban-board"
 
 const LEAD_STATUS = [
   { value: "NOVO", label: "Novo", color: "bg-blue-500" },
@@ -38,6 +39,7 @@ export function MetropoleList({ onProductChange, onStatusUpdate, refreshTrigger 
   const tenantId = "9"
   const [product, setProduct] = useState<string>("casaprimavera")
   const [searchTerm, setSearchTerm] = useState("")
+  const [viewMode, setViewMode] = useState<"table" | "kanban">("table")
   const { products } = useProductConfig()
 
   // Paginação
@@ -241,10 +243,33 @@ export function MetropoleList({ onProductChange, onStatusUpdate, refreshTrigger 
                 Gerencie seus leads de moda e confecção de forma eficiente. Ordenado por mais recentes.
               </CardDescription>
             </div>
-            <Button onClick={handleRefresh} variant="outline" size="sm" className="self-start sm:self-auto">
-              <Plus className="h-4 w-4 mr-2" />
-              Atualizar
-            </Button>
+            <div className="flex items-center gap-2">
+              {/* Toggle de visualização */}
+              <div className="flex items-center border rounded-lg p-1 bg-gray-100">
+                <Button
+                  variant={viewMode === "table" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("table")}
+                  className="h-8 px-3"
+                >
+                  <TableIcon className="h-4 w-4 mr-1" />
+                  Tabela
+                </Button>
+                <Button
+                  variant={viewMode === "kanban" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("kanban")}
+                  className="h-8 px-3"
+                >
+                  <Grid3X3 className="h-4 w-4 mr-1" />
+                  Kanban
+                </Button>
+              </div>
+              <Button onClick={handleRefresh} variant="outline" size="sm" className="self-start sm:self-auto">
+                <Plus className="h-4 w-4 mr-2" />
+                Atualizar
+              </Button>
+            </div>
           </div>
         </CardHeader>
 
@@ -311,6 +336,20 @@ export function MetropoleList({ onProductChange, onStatusUpdate, refreshTrigger 
             <div className="flex justify-center items-center py-8">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
               <span className="ml-2 text-gray-600">Carregando leads...</span>
+            </div>
+          ) : viewMode === "kanban" ? (
+            <div className="space-y-4">
+              {/* Estatísticas para KANBAN */}
+              <div className="flex justify-between items-center text-sm text-gray-600">
+                <span>{filteredMetropoles.length} leads encontrados</span>
+                <span>Arraste os cards entre as colunas para alterar o status</span>
+              </div>
+              <KanbanBoard
+                leads={filteredMetropoles}
+                onStatusUpdate={handleStatusUpdate}
+                onWhatsAppClick={handleWhatsAppClick}
+                loading={loading}
+              />
             </div>
           ) : (
             <>

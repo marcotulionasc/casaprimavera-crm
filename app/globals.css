@@ -141,6 +141,10 @@
       padding-right: 2rem;
     }
   }
+
+  .text-balance {
+    text-wrap: balance;
+  }
 }
 
 /* Custom scrollbar styles */
@@ -221,4 +225,44 @@
     margin: 0.5rem;
     border-radius: 0.75rem;
   }
+}
+
+/* Estilos personalizados para o KANBAN */
+.kanban-column {
+  transition: all 0.2s ease-in-out;
+}
+
+.kanban-column.drag-over {
+  background-color: rgb(239 246 255);
+  border: 2px solid rgb(59 130 246);
+  transform: scale(1.02);
+}
+
+.kanban-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.kanban-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.kanban-card.dragging {
+  transform: rotate(5deg);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
